@@ -1,94 +1,52 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { MdAddShoppingCart } from 'react-icons/md';
+import { connect } from 'react-redux';
 import { ProducList } from './styles';
+import api from '../../services/api';
+import { formatPrice } from '../../util/format';
 
-export default function Home() {
-  return (
-    <ProducList>
-      <li>
-        <img
-          src="https://a-static.mlcdn.com.br/210x210/sapato-social-masculino-ortopedico-linha-gel-lancamento-preto-fran-shoes/sapatofran/4864690109/e45c9805a3164f7be2d36ae40c37db07.jpg"
-          alt="tenis"
-        />
-        <strong> Tênis muito legal</strong>
-        <span>R$129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff" />3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://a-static.mlcdn.com.br/210x210/sapato-social-masculino-ortopedico-linha-gel-lancamento-preto-fran-shoes/sapatofran/4864690109/e45c9805a3164f7be2d36ae40c37db07.jpg"
-          alt="tenis"
-        />
-        <strong> Tênis muito legal</strong>
-        <span>R$129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff" />3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://a-static.mlcdn.com.br/210x210/sapato-social-masculino-ortopedico-linha-gel-lancamento-preto-fran-shoes/sapatofran/4864690109/e45c9805a3164f7be2d36ae40c37db07.jpg"
-          alt="tenis"
-        />
-        <strong> Tênis muito legal</strong>
-        <span>R$129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff" />3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://a-static.mlcdn.com.br/210x210/sapato-social-masculino-ortopedico-linha-gel-lancamento-preto-fran-shoes/sapatofran/4864690109/e45c9805a3164f7be2d36ae40c37db07.jpg"
-          alt="tenis"
-        />
-        <strong> Tênis muito legal</strong>
-        <span>R$129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff" />3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://a-static.mlcdn.com.br/210x210/sapato-social-masculino-ortopedico-linha-gel-lancamento-preto-fran-shoes/sapatofran/4864690109/e45c9805a3164f7be2d36ae40c37db07.jpg"
-          alt="tenis"
-        />
-        <strong> Tênis muito legal</strong>
-        <span>R$129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff" />3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-      <li>
-        <img
-          src="https://a-static.mlcdn.com.br/210x210/sapato-social-masculino-ortopedico-linha-gel-lancamento-preto-fran-shoes/sapatofran/4864690109/e45c9805a3164f7be2d36ae40c37db07.jpg"
-          alt="tenis"
-        />
-        <strong> Tênis muito legal</strong>
-        <span>R$129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff" />3
-          </div>
-          <span>ADICIONAR AO CARRINHO</span>
-        </button>
-      </li>
-    </ProducList>
-  );
+class Home extends Component {
+  state = { products: [] };
+
+  async componentDidMount() {
+    const response = await api.get('products');
+    const data = response.data.map((product) => ({
+      ...product,
+      priceFormatted: formatPrice(product.price),
+    }));
+    this.setState({ products: data });
+  }
+
+  handleAddProduct = (product) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'ADD_TO_CART',
+      product,
+    });
+  };
+
+  render() {
+    const { products } = this.state;
+    return (
+      <ProducList>
+        {products.map((product) => (
+          <li key={product.id}>
+            <img src={product.image} alt={product.title} />
+            <strong> {product.title}</strong>
+            <span>{product.priceFormatted}</span>
+            <button
+              type="button"
+              onClick={() => this.handleAddProduct(product)}
+            >
+              <div>
+                <MdAddShoppingCart size={16} color="#fff" />3
+              </div>
+              <span>ADICIONAR AO CARRINHO</span>
+            </button>
+          </li>
+        ))}
+      </ProducList>
+    );
+  }
 }
+export default connect()(Home);
